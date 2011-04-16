@@ -69,13 +69,14 @@ function textmate_drush_help($section) {
  */
 function drush_textmate_tm_generate() {
   $version = drush_drupal_major_version();
+  $type = drush_get_option('type');
   if (is_string(drush_get_option('write')) && $dir = realpath(drush_get_option('write'))) {
     if (is_writable($dir)) {
       $write_files = TRUE;
     }
   }
 
-  $functions = drush_textmate_find_functions(drush_get_option('type'), $version);
+  $functions = drush_textmate_find_functions($type, $version);
 
   foreach($functions as $function_name) {
     if (strpos($function_name, '::') === FALSE) {
@@ -107,6 +108,7 @@ function drush_textmate_tm_generate() {
 function drush_textmate_tm_format() {
   $version = drush_drupal_major_version();
   $textmate = drush_get_option('textmate');
+  $type = drush_get_option('type');
   if (is_string(drush_get_option('write')) && $dir = realpath(drush_get_option('write'))) {
     if (is_writable($dir)) {
       $write_files = TRUE;
@@ -115,14 +117,18 @@ function drush_textmate_tm_format() {
 
   $existing_commands = array();
   if (!empty($textmate)) {
+    $scan = array();
     foreach(drush_scan_directory($textmate . '/Commands', '/\.tmCommand/', array('.', '..', 'CVS')) as $file) {
-      $existing_commands[$file->name] = $file->name;
+      list($file_type) = explode('_', $file->basename);
+      if ($file_type == $type) {
+        $existing_commands[$file->name] = $file->name;
+      }
     }
   }
 
-  $functions = drush_textmate_find_functions(drush_get_option('type'), $version);  
+  $functions = drush_textmate_find_functions($type, $version);
   $output = array();
-  $scan = array();
+
   if (!empty($textmate)) {
     $scan += drush_scan_directory($textmate . '/Support/commands/custom/hooks', '/\.php/', array('.', '..', 'CVS'));
     $scan += drush_scan_directory($textmate . '/Support/commands/generated/hooks', '/\.php/', array('.', '..', 'CVS'));
@@ -134,7 +140,7 @@ function drush_textmate_tm_format() {
   foreach($scan as $file) {
     list($file_function, $file_version) = explode('.', $file->basename);
     list($file_type) = explode('_', $file->basename);
-    if ($file_type == 'hook') {
+    if ($file_type == $type) {
       $function[$file_function] = $file_function;
     }
   }
