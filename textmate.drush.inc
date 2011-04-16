@@ -112,7 +112,7 @@ function drush_textmate_tm_format() {
       $write_files = TRUE;
     }
   }
-  
+
   $existing_commands = array();
   if (!empty($textmate)) {
     foreach(drush_scan_directory($textmate . '/Commands', '/\.tmCommand/', array('.', '..', 'CVS')) as $file) {
@@ -129,7 +129,7 @@ function drush_textmate_tm_format() {
     $scan += drush_scan_directory($textmate . '/Support/commands/custom/theme', '/\.php/', array('.', '..', 'CVS'));
     $scan += drush_scan_directory($textmate . '/Support/commands/generated/theme', '/\.php/', array('.', '..', 'CVS'));
   }
-  
+
   $function = array();
   foreach($scan as $file) {
     list($file_function, $file_version) = explode('.', $file->basename);
@@ -138,7 +138,7 @@ function drush_textmate_tm_format() {
       $function[$file_function] = $file_function;
     }
   }
-  
+
   // Delete some lowercase function.
   // Example: delete hook_form_form_id_alter and preserve hook_form_FORM_ID_alter.
   foreach($function as $name) {
@@ -148,17 +148,17 @@ function drush_textmate_tm_format() {
       unset($function[$delete]);
     }
   }
-  
+
   switch (drush_get_option('filter')) {
     case 'new':
       $function = array_diff($function, $existing_commands);
       break;
-      
+
     case 'existing':
       $function = array_intersect($function, $existing_commands);
       break;
   }
-  
+
   if (drush_get_option('format') == 'plist') {
     foreach($function as $name) {
       $output[] = '{display = '  . "'" . $name . "'" . '; }';
@@ -263,9 +263,7 @@ function _textmate_drush_print_function($type, $function_name, $file, $start_lin
   $escape = FALSE;
   while (!feof($fp) && ($line_num < $end_line)) {
     $line = fgets($fp);
-
     $done = FALSE;
-
 
     if ($line_function_start == $line_num) {
       $function_name_head = _textmate_drush_function_name($line);
@@ -338,13 +336,10 @@ function _textmate_drush_print_function_name($function_name, $file, $start_line,
   $start_escape = $line_num + 1;
   $end_escape = $end_line - 1;
 
-  // drush_print_r($line_function_start . ' :: ' . $start_escape . ' :: ' . $end_escape);
   $escape = FALSE;
   while (!feof($fp) && ($line_num < $end_line)) {
     $line = fgets($fp);
-
     $done = FALSE;
-
     if ($line_function_start == $line_num) {
       return _textmate_drush_function_name($line);
     }
